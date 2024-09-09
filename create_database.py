@@ -9,17 +9,42 @@ import openai
 from dotenv import load_dotenv
 import os
 import shutil
+import nltk
+import ssl
+# # Load environment variables. Assumes that project contains .env file with API keys
+# load_dotenv()
+# #---- Set OpenAI API key 
+# # Change environment variable name from "OPENAI_API_KEY" to the name given in 
+# # your .env file.
+# openai.api_key = os.environ['OPENAI_API_KEY']
+import openai
+from dotenv import load_dotenv
+import os
+from pathlib import Path
 
-# Load environment variables. Assumes that project contains .env file with API keys
-load_dotenv()
-#---- Set OpenAI API key 
-# Change environment variable name from "OPENAI_API_KEY" to the name given in 
-# your .env file.
-openai.api_key = os.environ['OPENAI_API_KEY']
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context    
+nltk.download()
+# Load environment variables from APIKEY.env
+load_dotenv(Path(".env"))
+
+# Set OpenAI API key
+openai_api_key = os.getenv("OPENAI_API_KEY")
+
+if openai_api_key is None:
+    raise ValueError("OpenAI API key not found. Make sure it's set in APIKEY.env.")
+
+openai.api_key = openai_api_key
+
 
 CHROMA_PATH = "chroma"
 DATA_PATH = "data/books"
 
+verify = False
 
 def main():
     generate_data_store()
