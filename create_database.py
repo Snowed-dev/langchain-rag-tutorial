@@ -1,5 +1,6 @@
 # from langchain.document_loaders import DirectoryLoader
 from langchain_community.document_loaders import DirectoryLoader
+from langchain.document_loaders import UnstructuredURLLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 # from langchain.embeddings import OpenAIEmbeddings
@@ -11,15 +12,6 @@ import os
 import shutil
 import nltk
 import ssl
-# # Load environment variables. Assumes that project contains .env file with API keys
-# load_dotenv()
-# #---- Set OpenAI API key 
-# # Change environment variable name from "OPENAI_API_KEY" to the name given in 
-# # your .env file.
-# openai.api_key = os.environ['OPENAI_API_KEY']
-import openai
-from dotenv import load_dotenv
-import os
 from pathlib import Path
 
 try:
@@ -40,27 +32,35 @@ if openai_api_key is None:
 
 openai.api_key = openai_api_key
 
-
+# Define paths and settings
 CHROMA_PATH = "chroma"
 DATA_PATH = "data/books"
-
+URLS = [
+    "https://science.nasa.gov/mission/mars-exploration-rovers-spirit-and-opportunity/",  # Add actual URLs here
+    "https://example.com/article2"
+]
 verify = False
 
 def main():
     generate_data_store()
-
 
 def generate_data_store():
     documents = load_documents()
     chunks = split_text(documents)
     save_to_chroma(chunks)
 
-
 def load_documents():
+    # Load documents from local directory
     loader = DirectoryLoader(DATA_PATH, glob="*.md")
-    documents = loader.load()
-    return documents
+    local_documents = loader.load()
+    
+    # Load documents from URLs
+    url_loader = UnstructuredURLLoader(urls=URLS)
+    url_documents = url_loader.load()
 
+    # Combine both local and URL documents
+    documents = local_documents + url_documents
+    return documents
 
 def split_text(documents: list[Document]):
     text_splitter = RecursiveCharacterTextSplitter(
@@ -78,7 +78,6 @@ def split_text(documents: list[Document]):
 
     return chunks
 
-
 def save_to_chroma(chunks: list[Document]):
     # Clear out the database first.
     if os.path.exists(CHROMA_PATH):
@@ -90,7 +89,6 @@ def save_to_chroma(chunks: list[Document]):
     )
     db.persist()
     print(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
-
 
 if __name__ == "__main__":
     main()
