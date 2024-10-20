@@ -8,6 +8,7 @@ def querydata(query_text):
     import os
     import openai
     import numpy as np
+   
 
     np.float_ = np.float64
 
@@ -24,9 +25,7 @@ def querydata(query_text):
     """
     load_dotenv(Path(".env"))
 
-    # Set OpenAI API key
     openai_api_key = os.getenv("OPENAI_API_KEY")
-
     if openai_api_key is None:
         raise ValueError("OpenAI API key not found. Make sure it's set in APIKEY.env.")
 
@@ -38,18 +37,27 @@ def querydata(query_text):
 
     # Search the DB.
     results = db.similarity_search_with_relevance_scores(query_text, k=3)
-
+    
     context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
     prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
     prompt = prompt_template.format(context=context_text, question=query_text)
+    
 
-    model = ChatOpenAI()
+    model = ChatOpenAI(model="gpt-4o-mini").bind(logprobs=True)
+    response_text = model.invoke(prompt)
+    print(response_text)
+    
+    
+    
+    sources = [doc.metadata.get("source", None) for doc, _score in results]
+    
 
-    # Use invoke instead of predict
-    response = model.invoke(prompt)
+    
+    return {
+        "response": response_text,
+        "sources": sources,
+        # "logprobs": logprobs
+        
+    }
 
-    # Assuming response is an object with a 'content' attribute
-    if hasattr(response, 'content'):
-        return response.content  # Return only the response content
-    else:
-        return str(response)  # Fallback in case it's not structured as expected
+querydata("What is time")

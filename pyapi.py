@@ -1,20 +1,40 @@
 from flask import Flask, jsonify, request
-from flask_cors import CORS  # Import CORS
-from query_data import querydata  # Ensure this is the correct path to your querydata function
+from flask_cors import CORS
+from query_data import querydata  # Import your querydata module
+from confidence_score import confidence_calc
 
 app = Flask(__name__)
-CORS(app)  # This will enable CORS for all routes
+
+# Enable CORS for all routes
+CORS(app)
 
 @app.route('/query', methods=['GET'])
 def get_query():
-    # Get the query text from the query parameters
-    text = request.args.get('query', default='What?', type=str)
+    query = request.args.get('query', default="What is the meaning of life?", type=str)
+    result = querydata(query)  # Get the result from querydata function
 
-    # Call your querydata function with the passed text
-    response = querydata(text)  # Now this should return the response content as a string
+    # Extract the main response content (text generated)
+    response_text = result['response'].content  # This is where the generated content lies
 
-    # Return the response content
-    return jsonify({'response': response})
+    # Extract logprobs from the response (list of tokens with logprob data)
+    tokens = result['response'].response_metadata.get('logprobs', {}).get('content', [])
+    
+    # Extract logprobs for each token, if available
+    logprobs = [token.get('logprob') for token in tokens if 'logprob' in token]
+
+    # Extract sources, if provided in the response
+    sources = result.get('sources', [])
+
+    # Calculate confidence scores using the logprobs
+    probabilities = confidence_calc(logprobs)
+
+    # Return the response text, sources, and probabilities as JSON
+    return jsonify({
+        'response': response_text,
+        'sources': sources,
+        
+        'probabilities': probabilities
+    })
 
 if __name__ == '__main__':
-    app.run(debug=True)  # Set debug=True for easier debugging
+    app.run(port=8080)

@@ -2,11 +2,9 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  background-color: #d7d7d7;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -26,26 +24,26 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  flex-direction: column; /* Stack elements vertically */
-  justify-content: center; /* Center content vertically */
-  align-items: center; /* Center content horizontally */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-image: url('5509668.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: 4em;
 }
 
 button {
   border-radius: 8px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  font-size: 1.2em;
+  background-color: white;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -70,29 +68,79 @@ button:focus-visible {
   }
 
   button {
-    background-color: #f9f9f9;
+    color: #f9f9f9;
   }
 }
 
-/* #QueryInput {
-  border-radius: 180px;
-} */
+#QueryInput {
+  background-color: white;
+  border-radius: 20px;
+  border: 0;
+  color: black;
+  height: 25px;
+  width: 200px;
+  font-size: 1.2em;
+}
+
+#qbutton {
+  background-color: white;
+  width: 30px;
+  border-radius: 50%;
+  background: url('image-removebg-preview.png') no-repeat center center white;
+  background-size: cover;
+  border: none;
+  cursor: pointer;
+}
+
+.parent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
 
 .input-container {
-  display: flex;
-  flex-direction: column; /* Stack label, input, and button vertically */
-  align-items: center; /* Center elements horizontally */
-  margin-bottom: 20px; /* Space between input and response */
+  display: inline-flex;
+  flex-direction: row;
+  margin-bottom: 30px;
 }
 
 .response-container {
-  display: flex;
-  flex-direction: column; /* Stack error and response vertically */
-  align-items: center; /* Center elements horizontally */
+  margin-top: 20px;
+  background-color: rgba(20, 20, 20, 0.831);
+  border-radius: 5%;
+  padding: 20px;
+  width: 80%;
+  text-align: center;
+  min-height: 100px;
+  max-height: 400px;
+  overflow-y: auto;
+  word-wrap: break-word;
+  white-space: normal;
 }
 
-#Response {
-  margin-top: 10px; /* Space above the response text */
-  text-align: center; /* Center text */
+#ProbabDiv {
+  margin-top: 20px;
+  text-align: center;
 }
 
+#ProbabDiv h4 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+#ProbabDiv ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+#ProbabDiv li {
+  font-size: 1.2em;
+  color: #333;
+  margin: 5px 0;
+}
+
+#ResponseDiv {
+  margin-top: 10px;
+  text-align: center;
+}

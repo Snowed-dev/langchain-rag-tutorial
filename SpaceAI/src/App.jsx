@@ -1,56 +1,89 @@
 import { useState } from 'react';
 import './App.css';
-import $ from 'jquery'; // Import jQuery
+import $ from 'jquery';
 
 function App() {
-  const [query, setQuery] = useState(''); // To store the input query
-  const [data, setData] = useState(null); // To store the response data
-  const [error, setError] = useState(null); // To store any errors
+  const [query, setQuery] = useState('');
+  const [data, setData] = useState(null);
+  const [source, setSources] = useState(null);
+  const [error, setError] = useState(null);
+  const [probab, setProb] = useState(null);
 
-  // Function to handle API call using jQuery
   const handleQuery = () => {
-    // Clear previous data and error
     setData(null);
     setError(null);
+    setSources(null);
+    setProb(null);
+    
 
-    // Send the query to the Python API
     $.ajax({
-      url: 'http://127.0.0.1:5000/query',
+      url: 'http://127.0.0.1:8080/query',
       method: 'GET',
-      data: { query }, // Send the query as data
+      data: { query },
       success: function(response) {
         console.log(response);
-        setData(response.response); // Access the 'response' property
+        if (response.response) {
+          setData(response.response);
+        }
+        if (response.sources) {
+          setSources(response.sources);
+        }
+        if (typeof response.probabilities === 'number') {
+          setProb(response.probabilities);
+        } else {
+          console.error('Probabilities are not in the expected format:', response.probabilities);
+          setProb(null);
+        }
       },
       error: function(xhr, status, error) {
         console.error(status, error);
-        setError('An error occurred while fetching data.'); // Set error state
+        setError('An error occurred while fetching data.');
       }
     });
   };
 
   return (
     <>
-      <div className="input-container">
-        <label htmlFor="QueryInput">Query</label>
-        <input
-          id="QueryInput"
-          type="text"
-          value={query} // Bind input to the query state
-          onChange={(e) => setQuery(e.target.value)} // Update state on input change
-        />
-        <button onClick={handleQuery}>Submit Query</button>
+      <div className="container">
+        
+        <div className="input-container">
+          <input
+            id="QueryInput"
+            type="text"
+            value={query}
+            placeholder="Query"
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button id="qbutton" onClick={handleQuery}></button>
+        </div>
       </div>
 
-      <div className="response-container">
-        {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error message */}
-        {data && (
+      {/* Render the response container only when data is available */}
+      {data && (
+        <div className="response-container">
+          {error && <p style={{ color: 'red' }}>{error}</p>}
           <div id="ResponseDiv">
             <h3>Response:</h3>
-            <p id="Response">{data}</p> {/* Display the response */}
+            <p id="Response">{data}</p>
+            {source && (
+              <div id="SourcesDiv">
+                <h4>Sources:</h4>
+                <ul>
+                  {source.map((src, index) => (
+                    <li key={index}>{src}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {probab !== null && (
+              <div id="ProbabDiv">
+                <h4>Confidence Score:</h4>
+                <p>{probab.toFixed(4)}</p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 }
